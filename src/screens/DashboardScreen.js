@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState, useCallback } from 'react';
 import { View, Text, StyleSheet, ScrollView, ActivityIndicator, RefreshControl } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { LanguageContext } from '../contexts/LanguageContext';
-import { getResource } from '../services/api';
+import { getOrdersWithDetails, getResource } from '../services/api';
 import Header from '../components/Header';
 import Card from '../components/Card';
 import StatusBadge from '../components/StatusBadge';
@@ -19,7 +19,7 @@ export default function DashboardScreen({ navigation }) {
     setLoading(true);
     try {
       const [os, cl, ve] = await Promise.all([
-        getResource('service_orders'),
+        getOrdersWithDetails(),
         getResource('clients'),
         getResource('vehicles'),
       ]);

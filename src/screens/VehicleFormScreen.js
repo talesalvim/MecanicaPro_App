@@ -2,7 +2,8 @@ import React, { useContext, useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, Alert } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
 import { LanguageContext } from '../contexts/LanguageContext';
-import { getResource, postResource, patchResource } from '../services/api';
+import { getResource, postResource, patchResource, deleteResource } from '../services/api';
+import { AuthContext } from '../contexts/AuthContext';
 import Header from '../components/Header';
 import InputField from '../components/InputField';
 import Button from '../components/Button';
@@ -16,6 +17,8 @@ export default function VehicleFormScreen({ navigation, route }) {
   const { vehicle } = route.params || {};
   const [loading, setLoading] = useState(false);
   const [clients, setClients] = useState([]);
+  const { user } = useContext(AuthContext);
+  const isAdmin = user?.email === 'admin@mecanicapro.com';
 
   const { control, handleSubmit, formState: { errors } } = useForm({
     defaultValues: {
@@ -70,6 +73,24 @@ export default function VehicleFormScreen({ navigation, route }) {
     }
   };
 
+  const handleDelete = () => {
+    Alert.alert(t('appName'), t('confirmDelete'), [
+      { text: t('cancel'), style: 'cancel' },
+      { text: t('confirm'), style: 'destructive', onPress: async () => {
+        setLoading(true);
+        try {
+          await deleteResource('vehicles', vehicle.id);
+          navigation.goBack();
+        } catch (err) {
+          console.error("Erro ao deletar veículo:", err);
+          Alert.alert(t('appName'), t('loadError'));
+        } finally {
+          setLoading(false);
+        }
+      }},
+    ]);
+  };
+
   const typeOptions = [
     { value: 'car', label: t('car') },
     { value: 'motorcycle', label: t('motorcycle') },
@@ -120,6 +141,9 @@ export default function VehicleFormScreen({ navigation, route }) {
           )} />
 
         <Button title={t('save')} onPress={handleSubmit(onSubmit)} loading={loading} />
+        {isAdmin && vehicle?.id && (
+          <Button title={t('delete')} variant="danger" onPress={handleDelete} loading={loading} />
+        )}
         <Button title={t('cancel')} variant="secondary" onPress={() => navigation.goBack()} />
       </ScrollView>
     </View>

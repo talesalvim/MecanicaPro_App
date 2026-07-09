@@ -1,8 +1,10 @@
 import { createClient } from '@supabase/supabase-js';
 import CryptoJS from 'crypto-js';
+import Constants from 'expo-constants';
+import { SUPABASE_URL, SUPABASE_ANON_KEY } from '@env';
 
-const supabaseUrl = 'https://qqufxmpufkukuztptmdr.supabase.co';
-const supabaseAnonKey = 'sb_publishable_6ifvXAhZjea2dxkewG5-vQ_NlDtgJhH';
+const supabaseUrl = SUPABASE_URL;
+const supabaseAnonKey = SUPABASE_ANON_KEY;
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
@@ -35,6 +37,79 @@ export const patchResource = async (resource, id, body) => {
     throw error;
   }
 
+  return data;
+};
+
+export const getOrdersWithDetails = async () => {
+  const { data, error } = await supabase
+    .from('service_orders')
+    .select(`
+      *,
+      vehicle:vehicle_id ( plate ),
+      mechanic:mechanic_id ( name )
+    `);
+
+  if (error) throw error;
+
+  return data.map((item) => ({
+    ...item,
+    orderNumber: item.order_number,
+    entryDate: item.entry_date,
+    estimatedValue: item.estimated_value,
+    vehicleLabel: item.vehicle?.plate || '',
+    mechanicName: item.mechanic?.name || '',
+  }));
+};
+
+export const getOrderByIdWithDetails = async (id) => {
+  const { data, error } = await supabase
+    .from('service_orders')
+    .select(`
+      *,
+      vehicle:vehicle_id ( plate ),
+      mechanic:mechanic_id ( name )
+    `)
+    .eq('id', id)
+    .single();
+
+  if (error) throw error;
+
+  return {
+    ...data,
+    orderNumber: data.order_number,
+    entryDate: data.entry_date,
+    estimatedValue: data.estimated_value,
+    vehicleLabel: data.vehicle?.plate || '',
+    mechanicName: data.mechanic?.name || '',
+  };
+};
+
+export const getVehiclesWithOwner = async () => {
+  const { data, error } = await supabase
+    .from('vehicles')
+    .select(`
+      *,
+      owner:client_id ( name )
+    `);
+
+  if (error) throw error;
+
+  return data.map((item) => ({
+    ...item,
+    ownerName: item.owner?.name || '',
+  }));
+};
+
+export const deleteResource = async (resource, id) => {
+  const { data, error } = await supabase
+    .from(resource)
+    .delete()
+    .eq('id', id);
+
+  if (error) {
+    console.error('deleteResource error:', error);
+    throw error;
+  }
   return data;
 };
 

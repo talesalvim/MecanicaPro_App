@@ -2,7 +2,8 @@ import React, { useContext, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, Alert } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
 import { LanguageContext } from '../contexts/LanguageContext';
-import { postResource, patchResource } from '../services/api';
+import { AuthContext } from '../contexts/AuthContext';
+import { postResource, patchResource, deleteResource } from '../services/api';
 import Header from '../components/Header';
 import InputField from '../components/InputField';
 import Button from '../components/Button';
@@ -10,8 +11,10 @@ import { colors } from '../theme';
 
 export default function MechanicFormScreen({ navigation, route }) {
   const { t } = useContext(LanguageContext);
+  const { user } = useContext(AuthContext);
   const { mechanic } = route.params || {};
   const [loading, setLoading] = useState(false);
+  const isAdmin = user?.email === 'admin@mecanicapro.com';
 
   const { control, handleSubmit, formState: { errors } } = useForm({
     defaultValues: {
@@ -47,6 +50,23 @@ export default function MechanicFormScreen({ navigation, route }) {
     }
   };
 
+  const handleDelete = () => {
+    Alert.alert(t('appName'), t('confirmDelete') || 'Excluir mecânico?', [
+      { text: t('cancel'), style: 'cancel' },
+      { text: t('confirm'), style: 'destructive', onPress: async () => {
+        try {
+          setLoading(true);
+          await deleteResource('mechanics', mechanic.id);
+          navigation.goBack();
+        } catch (err) {
+          Alert.alert(t('appName'), t('loadError'));
+        } finally {
+          setLoading(false);
+        }
+      }},
+    ]);
+  };
+
   return (
     <View style={styles.screen}>
       <Header title={mechanic ? t('mechanics') : t('newMechanic')} navigation={navigation} showMenu={false} />
@@ -64,6 +84,9 @@ export default function MechanicFormScreen({ navigation, route }) {
             <InputField label={t('phone')} value={value} onChangeText={onChange} keyboardType="phone-pad" errorMessage={errors.phone?.message} />
           )} />
         <Button title={t('save')} onPress={handleSubmit(onSubmit)} loading={loading} />
+        {isAdmin && mechanic?.id && (
+          <Button title={t('delete')} variant="danger" onPress={handleDelete} loading={loading} />
+        )}
         <Button title={t('cancel')} variant="secondary" onPress={() => navigation.goBack()} />
       </ScrollView>
     </View>

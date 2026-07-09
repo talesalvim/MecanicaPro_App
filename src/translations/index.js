@@ -84,6 +84,9 @@ export const translations = {
     loading: 'Carregando...',
     chooseVehicle: 'Selecione um veículo',
     chooseMechanic: 'Selecione um mecânico',
+    delete: 'Excluir',
+    confirmDelete: 'Tem certeza que deseja excluir?',
+    confirm: 'Confirmar',
   },
   en: {
     appName: 'MecânicaPro',
@@ -170,6 +173,9 @@ export const translations = {
     loading: 'Loading...',
     chooseVehicle: 'Select a vehicle',
     chooseMechanic: 'Select a mechanic',
+    delete: 'Delete',
+    confirmDelete: 'Are you sure you want to delete?',
+    confirm: 'Confirm',
   },
   es: {
     appName: 'MecânicaPro',
@@ -256,5 +262,8 @@ export const translations = {
     loading: 'Cargando...',
     chooseVehicle: 'Seleccione un vehículo',
     chooseMechanic: 'Seleccione un mecánico',
+    delete: 'Eliminar',
+    confirmDelete: '¿Estás seguro de que deseas eliminar?',
+    confirm: 'Confirmar',
   },
 };

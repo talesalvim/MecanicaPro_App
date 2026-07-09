@@ -1,7 +1,8 @@
 import React, { useContext, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, Alert } from 'react-native';
 import { LanguageContext } from '../contexts/LanguageContext';
-import { patchResource } from '../services/api';
+import { AuthContext } from '../contexts/AuthContext';
+import { patchResource, deleteResource } from '../services/api';
 import Header from '../components/Header';
 import Button from '../components/Button';
 import StatusBadge from '../components/StatusBadge';
@@ -9,6 +10,8 @@ import { colors } from '../theme';
 
 export default function ServiceOrderDetailScreen({ navigation, route }) {
   const { t } = useContext(LanguageContext);
+  const { user } = useContext(AuthContext);
+  const isAdmin = user?.email === 'admin@mecanicapro.com';
   const { order } = route.params;
   const [status, setStatus] = useState(order.status);
   const [history, setHistory] = useState([{ status: order.status, date: order.entryDate }]);
@@ -25,6 +28,24 @@ export default function ServiceOrderDetailScreen({ navigation, route }) {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleDelete = () => {
+    Alert.alert(t('appName'), t('confirmDelete'), [
+      { text: t('cancel'), style: 'cancel' },
+      { text: t('confirm'), style: 'destructive', onPress: async () => {
+        setLoading(true);
+        try {
+          await deleteResource('service_orders', order.id);
+          navigation.goBack();
+        } catch (err) {
+          console.error('Erro ao excluir OS:', err);
+          Alert.alert(t('appName'), t('loadError'));
+        } finally {
+          setLoading(false);
+        }
+      }},
+    ]);
   };
 
   return (
@@ -61,6 +82,9 @@ export default function ServiceOrderDetailScreen({ navigation, route }) {
           )}
           {status !== 'completed' && status !== 'cancelled' && (
             <Button title={t('cancelService')} variant="danger" onPress={() => updateStatus('cancelled')} loading={loading} />
+          )}
+          {isAdmin && (
+            <Button title={t('delete')} variant="danger" onPress={handleDelete} loading={loading} />
           )}
         </View>
       </ScrollView>

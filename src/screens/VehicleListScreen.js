@@ -3,7 +3,7 @@ import { View, StyleSheet, FlatList, Text, ActivityIndicator, TouchableOpacity }
 import { useFocusEffect } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { LanguageContext } from '../contexts/LanguageContext';
-import { getResource } from '../services/api';
+import { getVehiclesWithOwner } from '../services/api';
 import Header from '../components/Header';
 import Card from '../components/Card';
 import FilterPicker from '../components/FilterPicker';
@@ -20,7 +20,7 @@ export default function VehicleListScreen({ navigation }) {
   const loadData = useCallback(async () => {
     setLoading(true);
     try {
-      const data = await getResource('vehicles');
+      const data = await getVehiclesWithOwner();
       setVehicles(data);
     } catch (err) {
       console.log(t('loadError'), err.message);

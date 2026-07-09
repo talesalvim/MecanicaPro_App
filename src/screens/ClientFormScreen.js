@@ -2,7 +2,8 @@ import React, { useContext, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, Alert } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
 import { LanguageContext } from '../contexts/LanguageContext';
-import { postResource, patchResource } from '../services/api';
+import { postResource, patchResource, deleteResource } from '../services/api';
+import { AuthContext } from '../contexts/AuthContext';
 import Header from '../components/Header';
 import InputField from '../components/InputField';
 import Button from '../components/Button';
@@ -10,6 +11,8 @@ import { colors } from '../theme';
 
 export default function ClientFormScreen({ navigation, route }) {
   const { t } = useContext(LanguageContext);
+  const { user } = useContext(AuthContext);
+  const isAdmin = user?.email === 'admin@mecanicapro.com';
   const { client } = route.params || {};
   const [loading, setLoading] = useState(false);
 
@@ -23,6 +26,24 @@ export default function ClientFormScreen({ navigation, route }) {
       city: client?.city || '',
     },
   });
+
+  const handleDelete = () => {
+    Alert.alert(t('appName'), t('confirmDelete'), [
+      { text: t('cancel'), style: 'cancel' },
+      { text: t('confirm'), style: 'destructive', onPress: async () => {
+        setLoading(true);
+        try {
+          await deleteResource('clients', client.id);
+          navigation.goBack();
+        } catch (err) {
+          console.error("Erro ao excluir cliente:", err);
+          Alert.alert(t('appName'), t('loadError'));
+        } finally {
+          setLoading(false);
+        }
+      }},
+    ]);
+  };
 
   const onSubmit = async (data) => {
     setLoading(true);
@@ -88,6 +109,9 @@ export default function ClientFormScreen({ navigation, route }) {
           )} />
 
         <Button title={t('save')} onPress={handleSubmit(onSubmit)} loading={loading} />
+        {isAdmin && client?.id && (
+          <Button title={t('delete')} variant="danger" onPress={handleDelete} loading={loading} />
+        )}
         <Button title={t('cancel')} variant="secondary" onPress={() => navigation.goBack()} />
       </ScrollView>
     </View>

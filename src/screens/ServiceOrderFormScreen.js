@@ -11,18 +11,18 @@ import { colors } from '../theme';
 
 export default function ServiceOrderFormScreen({ navigation, route }) {
   const { t } = useContext(LanguageContext);
-  const { order } = route.params || {};
+  const { order: serviceOrder } = route.params || {};
   const [loading, setLoading] = useState(false);
   const [vehicles, setVehicles] = useState([]);
   const [mechanics, setMechanics] = useState([]);
 
   const { control, handleSubmit, formState: { errors }, reset } = useForm({
     defaultValues: { 
-      vehicleId: order?.vehicle_id ? String(order.vehicle_id) : '', 
-      mechanicId: order?.mechanic_id ? String(order.mechanic_id) : '', 
-      services: order?.services || '', 
-      estimatedValue: order?.estimated_value ? String(order.estimated_value) : '', 
-      notes: order?.notes || '' 
+      vehicleId: serviceOrder?.vehicle_id ? String(serviceOrder.vehicle_id) : '', 
+      mechanicId: serviceOrder?.mechanic_id ? String(serviceOrder.mechanic_id) : '', 
+      services: serviceOrder?.services || '', 
+      estimatedValue: serviceOrder?.estimated_value ? String(serviceOrder.estimated_value) : '', 
+      notes: serviceOrder?.notes || '' 
     },
   });
 
@@ -33,26 +33,26 @@ export default function ServiceOrderFormScreen({ navigation, route }) {
         setVehicles(v);
         setMechanics(m);
 
-        if (order?.id) {
+        if (serviceOrder?.id) {
           reset({
-            vehicleId: order.vehicle_id ? String(order.vehicle_id) : '',
-            mechanicId: order.mechanic_id ? String(order.mechanic_id) : '',
-            services: order.services || '',
-            estimatedValue: order.estimated_value ? String(order.estimated_value) : '',
-            notes: order.notes || ''
+            vehicleId: serviceOrder.vehicle_id ? String(serviceOrder.vehicle_id) : '',
+            mechanicId: serviceOrder.mechanic_id ? String(serviceOrder.mechanic_id) : '',
+            services: serviceOrder.services || '',
+            estimatedValue: serviceOrder.estimated_value ? String(serviceOrder.estimated_value) : '',
+            notes: serviceOrder.notes || ''
           });
         }
       } catch (err) { 
         console.log("Erro ao carregar dependências da OS:", err.message); 
       }
     })();
-  }, [order, reset]);
+  }, [serviceOrder, reset]);
 
   const onSubmit = async (data) => {
     setLoading(true);
     try {
-      const orderNumber = order?.order_number || 'OS-' + Math.floor(1000 + Math.random() * 9000);
-      const entryDate = order?.entry_date || new Date().toISOString().slice(0, 10);
+      const orderNumber = serviceOrder?.order_number || 'OS-' + Math.floor(1000 + Math.random() * 9000);
+      const entryDate = serviceOrder?.entry_date || new Date().toISOString().slice(0, 10);
       const payload = {
         order_number: orderNumber,
         vehicle_id: data.vehicleId,       
@@ -60,12 +60,12 @@ export default function ServiceOrderFormScreen({ navigation, route }) {
         services: data.services,
         estimated_value: parseFloat(data.estimatedValue || 0), 
         notes: data.notes || '',
-        status: order?.status || 'open',  
+        status: serviceOrder?.status || 'open',  
         entry_date: entryDate,
       };
 
-      if (order?.id) {
-        await patchResource('service_orders', order.id, payload);
+      if (serviceOrder?.id) {
+        await patchResource('service_orders', serviceOrder.id, payload);
       } else {
         await postResource('service_orders', payload);
       }
