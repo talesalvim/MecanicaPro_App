@@ -70,4 +70,4 @@ CREATE TABLE service_orders (
 INSERT INTO users (name, email, password, phone) 
 VALUES ('Admin Oficina', 'admin@mecanicapro.com', 'e10adc3949ba59abbe56e057f20f883e', '(11) 99999-0000');
 
---7. Colocar as Keys do Banco de Dados no seu .env.
+--7. Colocar as Keys do Banco de Dados no seu .env com os nomes: SUPABASE_URL e SUPABASE_ANON_KEY.
