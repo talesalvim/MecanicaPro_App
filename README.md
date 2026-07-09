@@ -66,8 +66,61 @@ CREATE TABLE service_orders (
     CONSTRAINT fk_so_mechanic FOREIGN KEY (mechanic_id) REFERENCES mechanics(id) ON DELETE SET NULL
 );
 
---6. Insert do Usuário Administrador de testes da demo
+-- 6. Insert do Usuário Administrador de testes da demo
 INSERT INTO users (name, email, password, phone) 
 VALUES ('Admin Oficina', 'admin@mecanicapro.com', 'e10adc3949ba59abbe56e057f20f883e', '(11) 99999-0000');
 
---7. Colocar as Keys do Banco de Dados no seu .env com os nomes: SUPABASE_URL e SUPABASE_ANON_KEY.
+-- 7. Criar as policies necessárias
+-- Ativação do RLS 
+ALTER TABLE "public"."clients" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "public"."vehicles" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "public"."service_orders" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "public"."mechanics" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "public"."users" ENABLE ROW LEVEL SECURITY;
+
+-- 7.1. Políticas para CLIENTS
+CREATE POLICY "Acesso público total"
+ON "public"."clients"
+AS PERMISSIVE
+FOR ALL
+TO anon, authenticated
+USING (true)
+WITH CHECK (true);
+
+-- 7.2. Políticas para VEHICLES
+CREATE POLICY "Acesso público total"
+ON "public"."vehicles"
+AS PERMISSIVE
+FOR ALL
+TO anon, authenticated
+USING (true)
+WITH CHECK (true);
+
+-- 7.3. Políticas para USERS
+CREATE POLICY "Acesso público total"
+ON "public"."users"
+AS PERMISSIVE
+FOR ALL
+TO anon, authenticated
+USING (true)
+WITH CHECK (true);
+
+-- 7.4. Políticas para SERVICE_ORDERS
+CREATE POLICY "Acesso público total"
+ON "public"."service_orders"
+AS PERMISSIVE
+FOR ALL
+TO anon, authenticated
+USING (true)
+WITH CHECK (true);
+
+-- 7.5. Políticas para MECHANICS
+CREATE POLICY "Acesso público total"
+ON "public"."mechanics"
+AS PERMISSIVE
+FOR ALL
+TO anon, authenticated
+USING (true)
+WITH CHECK (true);
+
+-- 8. Colocar as Keys do Banco de Dados no seu .env com os nomes: SUPABASE_URL e SUPABASE_ANON_KEY.
