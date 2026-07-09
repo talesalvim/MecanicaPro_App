@@ -1,15 +1,12 @@
 import React, { useContext, useEffect, useState, useCallback } from 'react';
-import { View, StyleSheet, FlatList, Text, ActivityIndicator, TouchableOpacity, Modal, Alert } from 'react-native';
-import { useForm, Controller } from 'react-hook-form';
+import { View, StyleSheet, FlatList, Text, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { LanguageContext } from '../contexts/LanguageContext';
-import { getResource, postResource } from '../services/api';
+import { getResource } from '../services/api';
 import Header from '../components/Header';
 import Card from '../components/Card';
 import FilterPicker from '../components/FilterPicker';
-import InputField from '../components/InputField';
-import Button from '../components/Button';
 import { colors } from '../theme';
 
 export default function MechanicListScreen({ navigation }) {
@@ -17,12 +14,6 @@ export default function MechanicListScreen({ navigation }) {
   const [mechanics, setMechanics] = useState([]);
   const [loading, setLoading] = useState(true);
   const [specFilter, setSpecFilter] = useState('all');
-  const [modalVisible, setModalVisible] = useState(false);
-  const [saving, setSaving] = useState(false);
-
-  const { control, handleSubmit, reset, formState: { errors } } = useForm({
-    defaultValues: { name: '', specialty: '', phone: '' },
-  });
 
   const loadData = useCallback(async () => {
     setLoading(true);
@@ -43,20 +34,6 @@ export default function MechanicListScreen({ navigation }) {
   const options = specialties.map((s) => ({ value: s, label: s === 'all' ? t('all') : s }));
   const filtered = specFilter === 'all' ? mechanics : mechanics.filter((m) => m.specialty === specFilter);
 
-  const onSubmit = async (data) => {
-    setSaving(true);
-    try {
-      await postResource('mechanics', { ...data, availability: 'available' });
-      reset();
-      setModalVisible(false);
-      loadData();
-    } catch (err) {
-      Alert.alert(t('appName'), t('loadError'));
-    } finally {
-      setSaving(false);
-    }
-  };
-
   return (
     <View style={styles.screen}>
       <Header title={t('mechanics')} navigation={navigation} />
@@ -75,37 +52,16 @@ export default function MechanicListScreen({ navigation }) {
                 subtitle={`${item.specialty} • ${item.phone} • ${t(item.availability)}`}
                 icon="engineering"
                 color={item.availability === 'available' ? colors.success : colors.warning}
+                onPress={() => navigation.navigate('MechanicForm', { mechanic: item })}
               />
             )}
           />
         )}
       </View>
 
-      <TouchableOpacity style={styles.fab} onPress={() => setModalVisible(true)}>
+      <TouchableOpacity style={styles.fab} onPress={() => navigation.navigate('MechanicForm', {})}>
         <MaterialIcons name="add" size={28} color={colors.text} />
       </TouchableOpacity>
-
-      <Modal visible={modalVisible} transparent animationType="slide" onRequestClose={() => setModalVisible(false)}>
-        <View style={styles.modalBg}>
-          <View style={styles.modalBox}>
-            <Text style={styles.modalTitle}>{t('newMechanic')}</Text>
-            <Controller control={control} name="name" rules={{ required: t('requiredField') }}
-              render={({ field: { value, onChange } }) => (
-                <InputField label={t('name')} value={value} onChangeText={onChange} errorMessage={errors.name?.message} />
-              )} />
-            <Controller control={control} name="specialty" rules={{ required: t('requiredField') }}
-              render={({ field: { value, onChange } }) => (
-                <InputField label={t('specialty')} value={value} onChangeText={onChange} errorMessage={errors.specialty?.message} />
-              )} />
-            <Controller control={control} name="phone" rules={{ required: t('requiredField') }}
-              render={({ field: { value, onChange } }) => (
-                <InputField label={t('phone')} value={value} onChangeText={onChange} keyboardType="phone-pad" errorMessage={errors.phone?.message} />
-              )} />
-            <Button title={t('save')} onPress={handleSubmit(onSubmit)} loading={saving} />
-            <Button title={t('cancel')} variant="secondary" onPress={() => { reset(); setModalVisible(false); }} />
-          </View>
-        </View>
-      </Modal>
     </View>
   );
 }
@@ -119,7 +75,5 @@ const styles = StyleSheet.create({
     backgroundColor: colors.secondary, width: 56, height: 56,
     borderRadius: 28, alignItems: 'center', justifyContent: 'center', elevation: 5,
   },
-  modalBg: { flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'center', padding: 24 },
-  modalBox: { backgroundColor: colors.background, borderRadius: 16, padding: 20 },
-  modalTitle: { color: colors.text, fontSize: 20, fontWeight: '800', marginBottom: 16 },
+  
 });

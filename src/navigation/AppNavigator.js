@@ -19,6 +19,7 @@ import ServiceOrderListScreen from '../screens/ServiceOrderListScreen';
 import ServiceOrderFormScreen from '../screens/ServiceOrderFormScreen';
 import ServiceOrderDetailScreen from '../screens/ServiceOrderDetailScreen';
 import MechanicListScreen from '../screens/MechanicListScreen';
+import MechanicFormScreen from '../screens/MechanicFormScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 
 const Stack = createStackNavigator();
@@ -62,6 +63,7 @@ export default function AppNavigator() {
             <Stack.Screen name="VehicleForm" component={VehicleFormScreen} />
             <Stack.Screen name="ServiceOrderForm" component={ServiceOrderFormScreen} />
             <Stack.Screen name="ServiceOrderDetail" component={ServiceOrderDetailScreen} />
+            <Stack.Screen name="MechanicForm" component={MechanicFormScreen} />
           </>
         )}
       </Stack.Navigator>
