@@ -124,3 +124,5 @@ USING (true)
 WITH CHECK (true);
 
 -- 8. Colocar as Keys do Banco de Dados no seu .env com os nomes: SUPABASE_URL e SUPABASE_ANON_KEY.
+
+-- 9. Tendo o Node.js baixado, rodar esse comando no terminal do projeto para instalar a pasta node_modules com todos os pacotes necessários nas versões corretas: npm install --legacy-peer-deps
